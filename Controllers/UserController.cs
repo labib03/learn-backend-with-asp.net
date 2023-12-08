@@ -6,43 +6,45 @@ namespace latihan.api;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private static List<Users> users = new List<Users> 
+    public readonly IUserServices _userServices;
+    public UserController(IUserServices userServices)
     {
-        new Users() {id= 0, Age = 25},
-        new Users() {id= 1, FirstName = "Labib", LastName= "Ansorudin", Age = 20}
-    };
+        _userServices = userServices;
+    }
 
     [HttpGet]
-    public ActionResult<List<Users>> GetAllUsers()
+    public ActionResult<List<Users>> getAllUsers()
     {
         
-        ResponseSuccess<List<Users>> response = new ResponseSuccess<List<Users>> {message = "SUCCESS", data = users};
+        var result = _userServices.getAllUsers();
+
+        ResponseSuccess<List<Users>> response = new ResponseSuccess<List<Users>> {message = "SUCCESS", data = result};
+
         return Ok(response);
     }
 
     [HttpGet("{id}")]
     public ActionResult<Users> getUserById(int id)
     {
-        var user = users.FirstOrDefault(p => p.id == id);
-        if(user == null) {
+       var result = _userServices.getUserById(id);
+        if(result == null) {
             ResponseFailed ResponseFailed = new ResponseFailed() {message = "Failed", why = $"user with id: {id} is not found"};
             return NotFound(ResponseFailed);
         }
 
-        ResponseSuccess<Users> response = new ResponseSuccess<Users> {message = "SUCCESS", data = user};
+        ResponseSuccess<Users> response = new ResponseSuccess<Users> {message = "SUCCESS", data = result};
         return Ok(response);
     }
 
     [HttpPost]
     public ActionResult addUser(Users payload)
     {
-        var user = users.FirstOrDefault(p => p.id == payload.id);
-        if(user != null){
+        var result = _userServices.addUser(payload);
+        if(result == "found"){
             ResponseFailed responseFailed = new ResponseFailed() {message = "FAILED", why = $"id: {payload.id} is already used of other user"};
             return BadRequest(responseFailed);
         }
 
-        users.Add(payload);
         return Ok("User success created");
     }
 }
