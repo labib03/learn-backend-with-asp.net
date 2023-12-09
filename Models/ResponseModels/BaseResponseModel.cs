@@ -2,5 +2,5 @@
 
 public class BaseResponseModel
 {
-    public required string message {set; get;}
+    public string message {set; get;} = string.Empty; 
 }

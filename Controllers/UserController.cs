@@ -18,7 +18,9 @@ public class UserController : ControllerBase
         
         var result = _userServices.getAllUsers();
 
-        ResponseSuccess<List<Users>> response = new ResponseSuccess<List<Users>> {message = "SUCCESS", data = result};
+        var response = new ResponseSuccess<List<Users>>();
+        response.message = "SUCCESS";
+        response.data = result;
 
         return Ok(response);
     }
@@ -28,11 +30,13 @@ public class UserController : ControllerBase
     {
        var result = _userServices.getUserById(id);
         if(result == null) {
-            ResponseFailed ResponseFailed = new ResponseFailed() {message = "Failed", why = $"user with id: {id} is not found"};
+            var ResponseFailed = new ResponseFailed();
+            ResponseFailed.message = "FAILED";
+            ResponseFailed.why = $"user with id: {id} is not found.";
             return NotFound(ResponseFailed);
         }
 
-        ResponseSuccess<Users> response = new ResponseSuccess<Users> {message = "SUCCESS", data = result};
+        var response = new ResponseSuccess<Users> {message = "SUCCESS", data = result};
         return Ok(response);
     }
 
@@ -40,11 +44,14 @@ public class UserController : ControllerBase
     public ActionResult addUser(Users payload)
     {
         var result = _userServices.addUser(payload);
+        
         if(result == "found"){
-            ResponseFailed responseFailed = new ResponseFailed() {message = "FAILED", why = $"id: {payload.id} is already used of other user"};
+            var responseFailed = new ResponseFailed();
+            responseFailed.message = "FAILED";
+            responseFailed.why = $"id: {payload.id} is already used of other user";
             return BadRequest(responseFailed);
         }
 
-        return Ok("User success created");
+        return Ok("User has been successfully created");
     }
 }

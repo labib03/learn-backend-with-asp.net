@@ -2,5 +2,5 @@
 
 public class ResponseFailed : BaseResponseModel
 {
-    public required string why {set; get;}
+    public string why {set; get;} = string.Empty;
 }

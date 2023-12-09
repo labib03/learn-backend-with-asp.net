@@ -2,5 +2,5 @@
 
 public class ResponseSuccess<T> : BaseResponseModel
 {
-    public required T data {set; get;}
+    public T? data {set; get;}
 }
