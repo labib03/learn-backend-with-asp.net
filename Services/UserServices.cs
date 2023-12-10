@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace latihan.api;
 
@@ -12,42 +13,43 @@ public class UserServices : IUserServices
     };
 
     private readonly IMapper _mapper;
+    private readonly DataContext _context;
 
-    public UserServices(IMapper mapper)
+    public UserServices(IMapper mapper, DataContext context)
     {
         _mapper = mapper;
-    }
-    public ResponseService<GetUserDTO> addUser(AddUserDTO payload)
-    {
-        var newUser = _mapper.Map<Users>(payload);
-        newUser.id = users.Max(c => c.id) + 1;
-        users.Add(newUser);
-
-        var response = new ResponseService<GetUserDTO>();
-        response.Success = true;
-
-        return response;
+        _context = context;
     }
 
-    public ResponseService<List<GetUserDTO>> getAllUsers()
+    public async Task<ResponseService<List<GetUserDTO>>> getAllUsers()
     {
-        var allUser = users.Select(c => _mapper.Map<GetUserDTO>(c)).ToList();
+        var dbUsers = await _context.Users.ToListAsync();
+        var allUser = dbUsers.Select(c => _mapper.Map<GetUserDTO>(c)).ToList();
 
-        var response = new ResponseService<List<GetUserDTO>>();
-        response.Success = true;
+        var response = new ResponseService<List<GetUserDTO>>
+        {
+            Success = true
+        };
 
-        var dataResponseModel = new DataResponseModel<List<GetUserDTO>>();
-        dataResponseModel.Total = allUser.Count();
-        dataResponseModel.Data = allUser;
+        var dataResponseModel = new DataResponseModel<List<GetUserDTO>>
+        {
+            Total = allUser.Count(),
+            Data = allUser
+        };
         response.Data = dataResponseModel;
         return response;
     }
 
-    public ResponseService<GetUserDTO> getUserById(int id)
+    public async Task<ResponseService<GetUserDTO>> getUserById(int id)
     {
         var response = new ResponseService<GetUserDTO>();
 
-        var user = users.FirstOrDefault(p => p.id == id);
+        // bisa gini
+        // var dbUsers = await _context.Users.ToListAsync();
+        // var user = dbUsers.FirstOrDefault(p => p.id == id);
+
+        // bisa juga gini
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.id == id);
         if(user == null) 
         {   
             response.Success = false;
@@ -57,16 +59,33 @@ public class UserServices : IUserServices
         
         response.Success = true;
 
-        var dataResponseModel = new DataResponseModel<GetUserDTO>();
-        dataResponseModel.Total = 1;
-        dataResponseModel.Data = _mapper.Map<GetUserDTO>(user);
+        var dataResponseModel = new DataResponseModel<GetUserDTO>
+        {
+            Total = 1,
+            Data = _mapper.Map<GetUserDTO>(user)
+        };
         response.Data = dataResponseModel;
         return response;
     }
 
-    public ResponseService<GetUserDTO> updateUser(UpdateUserDTO payload)
+    public async Task<ResponseService<GetUserDTO>> addUser(AddUserDTO payload)
     {
-        var user = users.FirstOrDefault(u => u.id == payload.id);
+        var newUser = _mapper.Map<Users>(payload);
+
+        _context.Users.Add(newUser);
+        await _context.SaveChangesAsync();
+
+        var response = new ResponseService<GetUserDTO>
+        {
+            Success = true
+        };
+
+        return response;
+    }
+
+    public async Task<ResponseService<GetUserDTO>> updateUser(UpdateUserDTO payload)
+    {
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.id == payload.id);
         var response = new ResponseService<GetUserDTO>();
 
         if (user is null){
@@ -82,6 +101,8 @@ public class UserServices : IUserServices
         // user.Age = payload.Age;
         // user.Gender = payload.Gender;
 
+        await _context.SaveChangesAsync();
+
         response.Success = true;
         response.Data = new DataResponseModel<GetUserDTO> 
             {
@@ -92,24 +113,27 @@ public class UserServices : IUserServices
         return response;
     }
 
-    public ResponseService<List<GetUserDTO>> deleteUser(int id)
+    public async Task<ResponseService<List<GetUserDTO>>> deleteUser(int id)
     {
         var response = new ResponseService<List<GetUserDTO>>();
 
-        var user = users.FirstOrDefault(u => u.id == id);
+        var dbUsers = await  _context.Users.ToListAsync();
+        var user = dbUsers.FirstOrDefault(u => u.id == id);
         if(user is null){
             response.Success = false;
             response.Message = $"user with id: {id} is not found";
             return response;
         }
 
-        users.Remove(user);
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+
         response.Success = true;
-        response.Data = new DataResponseModel<List<GetUserDTO>> 
-            {
-                Total = users.Count(),
-                Data = users.Select(c => _mapper.Map<GetUserDTO>(c)).ToList()
-            };
+        response.Data = new DataResponseModel<List<GetUserDTO>>
+        {
+            Total = await _context.Users.CountAsync(),
+            Data = await _context.Users.Select(c => _mapper.Map<GetUserDTO>(c)).ToListAsync()
+        };
 
         return response;
     }

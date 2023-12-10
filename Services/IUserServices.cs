@@ -4,9 +4,9 @@ namespace latihan.api;
 
 public interface IUserServices
 {
-    ResponseService<List<GetUserDTO>> getAllUsers();
-    ResponseService<GetUserDTO> getUserById(int id);
-    ResponseService<GetUserDTO> addUser(AddUserDTO payload);
-    ResponseService<GetUserDTO> updateUser(UpdateUserDTO payload);
-    ResponseService<List<GetUserDTO>> deleteUser(int id);
+    Task<ResponseService<List<GetUserDTO>>> getAllUsers();
+    Task<ResponseService<GetUserDTO>> getUserById(int id);
+    Task<ResponseService<GetUserDTO>> addUser(AddUserDTO payload);
+    Task<ResponseService<GetUserDTO>> updateUser(UpdateUserDTO payload);
+    Task<ResponseService<List<GetUserDTO>>> deleteUser(int id);
 }
