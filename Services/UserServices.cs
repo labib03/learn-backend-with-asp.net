@@ -73,12 +73,14 @@ public class UserServices : IUserServices
             response.Success = false;
             response.Message = $"user with id: {payload.id} is not found";
             return response;
-        }    
+        } 
 
-        user.FirstName = payload.FirstName;
-        user.LastName = payload.LastName;
-        user.Age = payload.Age;
-        user.Gender = payload.Gender;
+        _mapper.Map(payload, user);   
+
+        // user.FirstName = payload.FirstName;
+        // user.LastName = payload.LastName;
+        // user.Age = payload.Age;
+        // user.Gender = payload.Gender;
 
         response.Success = true;
         response.Data = new DataResponseModel<GetUserDTO> 
