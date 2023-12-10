@@ -1,0 +1,3 @@
+perintah untuk connect ke local server database
+> dotnet ef migrations add [bebas aja ini, untuk nama migration nya]
+> dotnet ef database update
