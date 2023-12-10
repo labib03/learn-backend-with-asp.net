@@ -1,10 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace latihan.api;
 
-namespace latihan.api;
-
-public class Users
+public class GetUserDTO
     {
-        [Key]
         public int id {set; get;}
         public string FirstName {set; get;} = string.Empty;
         public string LastName {set; get;} = string.Empty;

@@ -1,4 +1,6 @@
 ﻿
+using AutoMapper;
+
 namespace latihan.api;
 
 public class UserServices : IUserServices
@@ -8,23 +10,32 @@ public class UserServices : IUserServices
         new Users() {id= 0, Age = 25},
         new Users() {id= 1, FirstName = "Labib", LastName= "Ansorudin", Age = 20}
     };
-    public string addUser(Users payload)
+
+    private readonly IMapper _mapper;
+
+    public UserServices(IMapper mapper)
     {
-        var user = users.FirstOrDefault(p => p.id == payload.id);
+        _mapper = mapper;
+    }
+    public string addUser(AddUserDTO payload)
+    {
+        var newUser = _mapper.Map<Users>(payload);
+        newUser.id = users.Max(c => c.id) + 1;
+        var user = users.FirstOrDefault(p => p.id == newUser.id);
         if(user != null){
             return "found";
         }
 
-        users.Add(payload);
+        users.Add(newUser);
         return "success";
     }
 
-    public List<Users> getAllUsers()
+    public List<GetUserDTO> getAllUsers()
     {
-        return users;
+        return users.Select(c => _mapper.Map<GetUserDTO>(c)).ToList();
     }
 
-    public Users? getUserById(int id)
+    public GetUserDTO? getUserById(int id)
     {
         var user = users.FirstOrDefault(p => p.id == id);
         if(user == null) 
@@ -32,6 +43,6 @@ public class UserServices : IUserServices
             return null;
         }
 
-        return user;
+        return _mapper.Map<GetUserDTO>(user);
     }
 }

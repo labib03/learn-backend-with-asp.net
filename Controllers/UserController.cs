@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace latihan.api;
 
@@ -7,18 +8,20 @@ namespace latihan.api;
 public class UserController : ControllerBase
 {
     public readonly IUserServices _userServices;
-    public UserController(IUserServices userServices)
+    public readonly IMapper _mapper;
+    public UserController(IUserServices userServices, IMapper mapper)
     {
         _userServices = userServices;
+        _mapper = mapper;
     }
 
     [HttpGet]
-    public ActionResult<List<Users>> getAllUsers()
+    public ActionResult<List<GetUserDTO>> getAllUsers()
     {
         
         var result = _userServices.getAllUsers();
 
-        var response = new ResponseSuccess<List<Users>>();
+        var response = new ResponseSuccess<List<GetUserDTO>>();
         response.message = "SUCCESS";
         response.data = result;
 
@@ -26,7 +29,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Users> getUserById(int id)
+    public ActionResult<GetUserDTO> getUserById(int id)
     {
        var result = _userServices.getUserById(id);
         if(result == null) {
@@ -36,19 +39,19 @@ public class UserController : ControllerBase
             return NotFound(ResponseFailed);
         }
 
-        var response = new ResponseSuccess<Users> {message = "SUCCESS", data = result};
+        var response = new ResponseSuccess<GetUserDTO> {message = "SUCCESS", data = result};
         return Ok(response);
     }
 
     [HttpPost]
-    public ActionResult addUser(Users payload)
+    public ActionResult<string> addUser(AddUserDTO payload)
     {
         var result = _userServices.addUser(payload);
-        
+
         if(result == "found"){
             var responseFailed = new ResponseFailed();
             responseFailed.message = "FAILED";
-            responseFailed.why = $"id: {payload.id} is already used of other user";
+            responseFailed.why = $"id is already used of other user";
             return BadRequest(responseFailed);
         }
 
