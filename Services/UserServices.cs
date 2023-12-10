@@ -91,4 +91,26 @@ public class UserServices : IUserServices
 
         return response;
     }
+
+    public ResponseService<List<GetUserDTO>> deleteUser(int id)
+    {
+        var response = new ResponseService<List<GetUserDTO>>();
+
+        var user = users.FirstOrDefault(u => u.id == id);
+        if(user is null){
+            response.Success = false;
+            response.Message = $"user with id: {id} is not found";
+            return response;
+        }
+
+        users.Remove(user);
+        response.Success = true;
+        response.Data = new DataResponseModel<List<GetUserDTO>> 
+            {
+                Total = users.Count(),
+                Data = users.Select(c => _mapper.Map<GetUserDTO>(c)).ToList()
+            };
+
+        return response;
+    }
 }

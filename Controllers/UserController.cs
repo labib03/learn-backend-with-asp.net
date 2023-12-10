@@ -55,4 +55,16 @@ public class UserController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpDelete("{id}")]
+    public ActionResult<ResponseService<List<GetUserDTO>>> deleteUser(int id)
+    {
+        var result = _userServices.deleteUser(id);
+
+        if(result.Data is null){
+            return NotFound(result);
+        }
+
+        return Ok(result);
+    }
 }
