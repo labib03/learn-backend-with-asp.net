@@ -7,4 +7,5 @@ public interface IUserServices
     ResponseService<List<GetUserDTO>> getAllUsers();
     ResponseService<GetUserDTO> getUserById(int id);
     ResponseService<GetUserDTO> addUser(AddUserDTO payload);
+    ResponseService<GetUserDTO> updateUser(UpdateUserDTO payload);
 }

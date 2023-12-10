@@ -7,7 +7,7 @@ public class UserServices : IUserServices
 {
     private static List<Users> users = new List<Users> 
     {
-        new Users() {id= 0, Age = 25},
+        new Users() {id= 0, FirstName = "Jacob", LastName = "Franklin", Age = 25, Gender = Gender.Male},
         new Users() {id= 1, FirstName = "Labib", LastName= "Ansorudin", Age = 20}
     };
 
@@ -61,6 +61,32 @@ public class UserServices : IUserServices
         dataResponseModel.Total = 1;
         dataResponseModel.Data = _mapper.Map<GetUserDTO>(user);
         response.Data = dataResponseModel;
+        return response;
+    }
+
+    public ResponseService<GetUserDTO> updateUser(UpdateUserDTO payload)
+    {
+        var user = users.FirstOrDefault(u => u.id == payload.id);
+        var response = new ResponseService<GetUserDTO>();
+
+        if (user is null){
+            response.Success = false;
+            response.Message = $"user with id: {payload.id} is not found";
+            return response;
+        }    
+
+        user.FirstName = payload.FirstName;
+        user.LastName = payload.LastName;
+        user.Age = payload.Age;
+        user.Gender = payload.Gender;
+
+        response.Success = true;
+        response.Data = new DataResponseModel<GetUserDTO> 
+            {
+                Total = 1,
+                Data = _mapper.Map<GetUserDTO>(user)
+            };
+
         return response;
     }
 }

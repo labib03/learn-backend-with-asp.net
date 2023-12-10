@@ -43,4 +43,16 @@ public class UserController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPut]
+    public ActionResult<ResponseService<GetUserDTO>> updateUser(UpdateUserDTO payload)
+    {
+        var result = _userServices.updateUser(payload);
+
+        if(result.Data is null){
+            return NotFound(result);
+        }
+
+        return Ok(result);
+    }
 }
