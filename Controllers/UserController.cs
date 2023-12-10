@@ -16,45 +16,31 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<List<GetUserDTO>> getAllUsers()
+    public ActionResult<ResponseService<List<GetUserDTO>>> getAllUsers()
     {
         
         var result = _userServices.getAllUsers();
 
-        var response = new ResponseSuccess<List<GetUserDTO>>();
-        response.message = "SUCCESS";
-        response.data = result;
-
-        return Ok(response);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
-    public ActionResult<GetUserDTO> getUserById(int id)
+    public ActionResult<ResponseService<GetUserDTO>> getUserById(int id)
     {
        var result = _userServices.getUserById(id);
-        if(result == null) {
-            var ResponseFailed = new ResponseFailed();
-            ResponseFailed.message = "FAILED";
-            ResponseFailed.why = $"user with id: {id} is not found.";
-            return NotFound(ResponseFailed);
+        if(result.Data is null) {
+            result.Message = $"user with id: {id} is not found";
+            return NotFound(result);
         }
 
-        var response = new ResponseSuccess<GetUserDTO> {message = "SUCCESS", data = result};
-        return Ok(response);
+        return Ok(result);
     }
 
     [HttpPost]
-    public ActionResult<string> addUser(AddUserDTO payload)
+    public ActionResult<ResponseService<GetUserDTO>> addUser(AddUserDTO payload)
     {
         var result = _userServices.addUser(payload);
 
-        if(result == "found"){
-            var responseFailed = new ResponseFailed();
-            responseFailed.message = "FAILED";
-            responseFailed.why = $"id is already used of other user";
-            return BadRequest(responseFailed);
-        }
-
-        return Ok("User has been successfully created");
+        return Ok(result);
     }
 }

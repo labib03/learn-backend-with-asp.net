@@ -4,7 +4,7 @@ namespace latihan.api;
 
 public interface IUserServices
 {
-    List<GetUserDTO> getAllUsers();
-    GetUserDTO? getUserById(int id);
-    string addUser(AddUserDTO payload);
+    ResponseService<List<GetUserDTO>> getAllUsers();
+    ResponseService<GetUserDTO> getUserById(int id);
+    ResponseService<GetUserDTO> addUser(AddUserDTO payload);
 }

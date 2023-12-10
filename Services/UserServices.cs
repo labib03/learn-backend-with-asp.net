@@ -17,32 +17,50 @@ public class UserServices : IUserServices
     {
         _mapper = mapper;
     }
-    public string addUser(AddUserDTO payload)
+    public ResponseService<GetUserDTO> addUser(AddUserDTO payload)
     {
         var newUser = _mapper.Map<Users>(payload);
         newUser.id = users.Max(c => c.id) + 1;
-        var user = users.FirstOrDefault(p => p.id == newUser.id);
-        if(user != null){
-            return "found";
-        }
-
         users.Add(newUser);
-        return "success";
+
+        var response = new ResponseService<GetUserDTO>();
+        response.Success = true;
+
+        return response;
     }
 
-    public List<GetUserDTO> getAllUsers()
+    public ResponseService<List<GetUserDTO>> getAllUsers()
     {
-        return users.Select(c => _mapper.Map<GetUserDTO>(c)).ToList();
+        var allUser = users.Select(c => _mapper.Map<GetUserDTO>(c)).ToList();
+
+        var response = new ResponseService<List<GetUserDTO>>();
+        response.Success = true;
+
+        var dataResponseModel = new DataResponseModel<List<GetUserDTO>>();
+        dataResponseModel.Total = allUser.Count();
+        dataResponseModel.Data = allUser;
+        response.Data = dataResponseModel;
+        return response;
     }
 
-    public GetUserDTO? getUserById(int id)
+    public ResponseService<GetUserDTO> getUserById(int id)
     {
+        var response = new ResponseService<GetUserDTO>();
+
         var user = users.FirstOrDefault(p => p.id == id);
         if(user == null) 
-        {
-            return null;
+        {   
+            response.Success = false;
+            response.Message = "User not found";
+            return response;
         }
+        
+        response.Success = true;
 
-        return _mapper.Map<GetUserDTO>(user);
+        var dataResponseModel = new DataResponseModel<GetUserDTO>();
+        dataResponseModel.Total = 1;
+        dataResponseModel.Data = _mapper.Map<GetUserDTO>(user);
+        response.Data = dataResponseModel;
+        return response;
     }
 }
